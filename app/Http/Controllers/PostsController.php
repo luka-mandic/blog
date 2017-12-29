@@ -22,7 +22,7 @@ class PostsController extends Controller
      */
     public function index()
     {
-        $posts = Post::latest()->filter(request(['month', 'year', 'user']))->get();
+        $posts = Post::latest()->filter(request(['month', 'year', 'user']))->paginate(5);
 
         return view('posts.index', compact('posts'));
     }
@@ -47,8 +47,7 @@ class PostsController extends Controller
      */
     public function store(Request $request)
     {
-        //dd($request->input('created_tags'));
-
+        
 
         $request->validate([
             'title' => 'required|max:255',
@@ -70,7 +69,7 @@ class PostsController extends Controller
         $post->tags()->attach($request->input('tags'));
         
         
-
+        flash('Post has been created')->success();
         return redirect('/');
     }
 
@@ -93,9 +92,21 @@ class PostsController extends Controller
      */
     public function edit(Post $post)
     {
-        $tags = Tag::orderBy('name', 'asc')->pluck('name', 'id')->all();
 
-        return view('posts.edit', compact('post', 'tags'));
+        if($post->user_id == auth()->user()->id)
+        {
+            $tags = Tag::orderBy('name', 'asc')->pluck('name', 'id')->all();
+
+            return view('posts.edit', compact('post', 'tags'));
+        }
+
+        else
+        {
+            flash('You do not have permission to view this page')->warning();
+
+            return redirect('/');
+        }
+       
     }
 
     /**
@@ -107,42 +118,34 @@ class PostsController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        $request->validate([
-            'title' => 'required|max:255',
-            'body' => 'required',
-        ]);
 
-        $post->update([
-            'title' => request('title'), 
-            'body' => request('body'),
-        ]);
-
-        $tags = Tag::updateTags($request->input('created_tags'), $request->input('tags'));
-        $post->tags()->sync($tags);
-
-        /*if($request->input('created_tags') !== null && $request->input('tags') !== null)
+        if($post->user_id == auth()->user()->id)
         {
-            $created_tags = Tag::prepareTags($request->input('created_tags'));
-            $tags = array_merge($created_tags, $request->input('tags'));
+            $request->validate([
+                'title' => 'required|max:255',
+                'body' => 'required',
+            ]);
 
+            $post->update([
+                'title' => request('title'), 
+                'body' => request('body'),
+            ]);
+
+            $tags = Tag::updateTags($request->input('created_tags'), $request->input('tags'));
             $post->tags()->sync($tags);
+
             
-        }
-
-        elseif ($request->input('created_tags') !== null && $request->input('tags') == null)
-        {
-            $created_tags = Tag::prepareTags($request->input('created_tags'));
-
-            $post->tags()->sync($created_tags);
+            flash('Post updated')->success();
+            return redirect()->action('PostsController@show', ['id' => $post]);
         }
 
         else
         {
-            $post->tags()->sync($request->input('tags'));
-        }*/
-        
+            flash('You do not have permission to view this page')->warning();
 
-        return redirect()->action('PostsController@show', ['id' => $post]);
+            return redirect('/');
+        }
+        
     }
 
     /**
@@ -155,6 +158,7 @@ class PostsController extends Controller
     {
         $post->delete();
 
+        flash('Post deleted')->danger();
         return redirect('/');
     }
 }

@@ -23,3 +23,7 @@ Route::post('/posts/{post}/comments', 'CommentsController@store');
 Route::post('/posts/{post}/replies', 'RepliesController@store');
 
 Route::get('/posts/tags/{tag}', 'TagsController@index');
+
+Route::post('/posts/{post}/like', 'LikesController@storeLike');
+
+Route::post('/posts/{post}/dislike', 'LikesController@storeDislike');

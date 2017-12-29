@@ -18,6 +18,8 @@ class CreatePostsTable extends Migration
             $table->string('title');
             $table->longText('body');
             $table->integer('user_id');
+            $table->integer('likes_count')->unsigned()->default(0);
+            $table->integer('dislikes_count')->unsigned()->default(0);
             $table->timestamps();
         });
     }

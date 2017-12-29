@@ -57,5 +57,12 @@ class Post extends Model
         return $this->tags->pluck('id')->all();
     }
 
+
+    public function likes()
+    {
+        return $this->belongsToMany('\App\User', 'likes')
+            ->withPivot('like', 'dislike');
+    }
+
     
 }
