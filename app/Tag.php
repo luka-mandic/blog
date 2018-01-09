@@ -18,6 +18,10 @@ class Tag extends Model
         return 'name';
     }
 
+    // Prepare the tags for storing into the database
+    // First separate the users input by comma
+    // then remove all whitespaces
+    // create an array of the newly created tag ids
     public static function prepareTags(string $tags)
     {
     	$created_tags = explode(",", $tags);
@@ -37,8 +41,10 @@ class Tag extends Model
 
     }
 
+    // Update the tags of an existing post
     public static function updateTags(string $created_tags = null, array $selected_tags = null)
     {
+        // If there are new tags created and selected from the list, then prepare the new tags and merge the two arays into one
     	if ($created_tags !== null && $selected_tags !== null)
         {
             $new_tags = Tag::prepareTags($created_tags);
@@ -48,6 +54,7 @@ class Tag extends Model
             
         }
 
+        // If the user only created new tags then prepare them and return them
         elseif ($created_tags !== null && $selected_tags == null)
         {
             $new_tags = Tag::prepareTags($created_tags);
@@ -55,11 +62,13 @@ class Tag extends Model
             return $new_tags;
         }
 
+        // If the user didn't create any new tags, only selected new ones
         elseif ($created_tags == null && $selected_tags !== null)
         {
             return $selected_tags;
         }
 
+        // The user didn't change any tags
         else
         {
         	return;

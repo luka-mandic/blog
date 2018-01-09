@@ -13,11 +13,6 @@ class RepliesController extends Controller
         $this->middleware('auth');
     }
    
-    public function create()
-    {
-        //
-    }
-
 
     public function store(Request $request)
     {
@@ -33,8 +28,4 @@ class RepliesController extends Controller
     }
 
    
-    public function destroy(Reply $reply)
-    {
-        //
-    }
 }

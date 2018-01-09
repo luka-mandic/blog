@@ -60,12 +60,14 @@ class PostsController extends Controller
             'user_id' => auth()->user()->id,
         ]);
 
+        // If the user created new tags, then prepare them and store them
         if($request->input('created_tags') !== null)
         {
             $created_tags = Tag::prepareTags($request->input('created_tags'));
             $post->tags()->attach($created_tags);
         }
         
+        // Store tags selected from the dropdown list
         $post->tags()->attach($request->input('tags'));
         
         
@@ -93,6 +95,7 @@ class PostsController extends Controller
     public function edit(Post $post)
     {
 
+        // Check if the user is allowed to edit this post
         if($post->user_id == auth()->user()->id)
         {
             $tags = Tag::orderBy('name', 'asc')->pluck('name', 'id')->all();
@@ -119,6 +122,7 @@ class PostsController extends Controller
     public function update(Request $request, Post $post)
     {
 
+        // Check if the user is allowed to edit this post
         if($post->user_id == auth()->user()->id)
         {
             $request->validate([
@@ -131,6 +135,7 @@ class PostsController extends Controller
                 'body' => request('body'),
             ]);
 
+            // Sync tags with the new created and selected tags
             $tags = Tag::updateTags($request->input('created_tags'), $request->input('tags'));
             $post->tags()->sync($tags);
 
@@ -156,9 +161,22 @@ class PostsController extends Controller
      */
     public function destroy(Post $post)
     {
-        $post->delete();
 
-        flash('Post deleted')->danger();
-        return redirect('/');
+        // Check if the user is allowed to delete this post
+        if($post->user_id == auth()->user()->id)
+        {
+            $post->delete();
+
+            flash('Post deleted')->error();
+            return redirect('/');
+        }
+
+        else
+        {
+            flash('You do not have permission to view this page')->warning();
+
+            return redirect('/');
+        }
+
     }
 }

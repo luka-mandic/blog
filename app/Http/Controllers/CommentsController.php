@@ -13,6 +13,8 @@ class CommentsController extends Controller
     {
         $this->middleware('auth');
     }
+
+    // Validating and storing comments
     
     public function store(Post $post)
     {

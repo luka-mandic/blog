@@ -20,6 +20,7 @@ class Post extends Model
     }
 
 
+    // Check if there are any request variables and filter the posts accordingly
     public function scopeFilter($query, $filters)
     {
         if(isset($filters['month'])) {
@@ -38,6 +39,7 @@ class Post extends Model
         }
     }
 
+    // Query for the posts ordered by month and year in the sidebar
     public static function archives()
     {
         return static::selectRaw('year(created_at) year, monthname(created_at) month, count(*) published')
